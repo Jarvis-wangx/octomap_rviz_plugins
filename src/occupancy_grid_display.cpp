@@ -38,7 +38,10 @@
 
 #include <OGRE/OgreSceneNode.h>
 #include <OGRE/OgreSceneManager.h>
+#include <OgreColourValue.h>
+#include <OgreMatrix4.h>
 
+#include <rviz/properties/color_property.h>
 #include "rviz/visualization_manager.h"
 #include "rviz/frame_manager.h"
 #include "rviz/properties/int_property.h"
@@ -73,6 +76,7 @@ enum OctreeVoxelColorMode
   OCTOMAP_CELL_COLOR,
   OCTOMAP_Z_AXIS_COLOR,
   OCTOMAP_PROBABLILTY_COLOR,
+  OCTOMAP_CUSTOM_COLOR,
 };
 
 OccupancyGridDisplay::OccupancyGridDisplay() :
@@ -116,11 +120,16 @@ OccupancyGridDisplay::OccupancyGridDisplay() :
   octree_coloring_property_->addOption( "Cell Color",  OCTOMAP_CELL_COLOR );
   octree_coloring_property_->addOption( "Z-Axis",  OCTOMAP_Z_AXIS_COLOR );
   octree_coloring_property_->addOption( "Cell Probability",  OCTOMAP_PROBABLILTY_COLOR );
+  octree_coloring_property_->addOption( "Color Customed",  OCTOMAP_CUSTOM_COLOR );
   alpha_property_ = new rviz::FloatProperty( "Voxel Alpha", 1.0, "Set voxel transparency alpha",
                                              this, 
                                              SLOT( updateAlpha() ) );
   alpha_property_->setMin(0.0);
   alpha_property_->setMax(1.0);
+
+  color_property_ = new rviz::ColorProperty( "Voxel Color", Qt::white, "Color to assign to every voxel",
+                                             this, 
+                                             SLOT( updateColor() ) );
 
   tree_depth_property_ = new IntProperty("Max. Octree Depth",
                                          max_octree_depth_,
@@ -311,6 +320,11 @@ void OccupancyGridDisplay::updateAlpha()
   updateTopic();
 }
 
+void OccupancyGridDisplay::updateColor()
+{
+  updateTopic();
+}
+
 void OccupancyGridDisplay::updateMaxHeight()
 {
   updateTopic();
@@ -417,6 +431,12 @@ void TemplatedOccupancyGridDisplay<OcTreeType>::setVoxelColor(PointCloud::Point&
       cell_probability = node.getOccupancy();
       newPoint.setColor((1.0f-cell_probability), cell_probability, 0.0);
       break;
+    case OCTOMAP_CUSTOM_COLOR:
+      {
+      Ogre::ColourValue color = color_property_->getOgreColor();
+      newPoint.setColor(color.r, color.g, color.b);
+      break;
+      }
     default:
       break;
   }
@@ -446,6 +466,12 @@ void TemplatedOccupancyGridDisplay<octomap::ColorOcTree>::setVoxelColor(PointClo
       cell_probability = node.getOccupancy();
       newPoint.setColor((1.0f-cell_probability), cell_probability, 0.0);
       break;
+    case OCTOMAP_CUSTOM_COLOR:
+      {
+      Ogre::ColourValue color = color_property_->getOgreColor();
+      newPoint.setColor(color.r, color.g, color.b);
+      break;
+      }
     default:
       break;
   }
