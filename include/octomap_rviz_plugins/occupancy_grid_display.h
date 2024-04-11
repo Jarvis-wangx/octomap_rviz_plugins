@@ -56,6 +56,7 @@ class RosTopicProperty;
 class IntProperty;
 class EnumProperty;
 class FloatProperty;
+class ColorProperty;
 }
 
 namespace octomap_rviz_plugin
@@ -80,6 +81,7 @@ private Q_SLOTS:
   void updateOctreeRenderMode();
   void updateOctreeColorMode();
   void updateAlpha();
+  void updateColor();
   void updateMaxHeight();
   void updateMinHeight();
 
@@ -123,6 +125,7 @@ protected:
   rviz::EnumProperty* octree_coloring_property_;
   rviz::IntProperty* tree_depth_property_;
   rviz::FloatProperty* alpha_property_;
+  rviz::ColorProperty* color_property_;
   rviz::FloatProperty* max_height_property_;
   rviz::FloatProperty* min_height_property_;
 
